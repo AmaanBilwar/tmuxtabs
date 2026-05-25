@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "name in manifest.json",
-  "description": "description in manifest.json",
+  "name": "TmuxTabs",
+  "description": "Tmux-style tab and window management for your browser",
   "options_ui": {
     "page": "src/pages/options/index.html"
   },
@@ -18,8 +18,20 @@
     "128": "icon-128.png"
   },
   "permissions": [
-    "activeTab"
+    "tabs",
+    "storage"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "commands": {
+    "enter-prefix-mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B"
+      },
+      "description": "Enter tmux command mode"
+    }
+  },
   "content_scripts": [
     {
       "matches": [
@@ -35,7 +47,6 @@
       ]
     }
   ],
-  "devtools_page": "src/pages/devtools/index.html",
   "web_accessible_resources": [
     {
       "resources": [

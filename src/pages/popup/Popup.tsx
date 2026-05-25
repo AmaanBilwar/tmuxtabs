@@ -1,24 +1,49 @@
-import React from 'react';
-import logo from '@assets/img/logo.svg';
+import { useEffect, useState } from 'react';
+import { sendToBackground } from '@src/lib/messaging';
+import type { ExtensionSettings, Session } from '@src/lib/types';
+import { DEFAULT_SETTINGS } from '@src/lib/types';
+import { formatChord } from '@src/lib/keybindings';
 
 export default function Popup() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [settings, setSettings] = useState<ExtensionSettings>(DEFAULT_SETTINGS);
+
+  useEffect(() => {
+    sendToBackground({ type: 'GET_SESSION_STATE' }).then((response) => {
+      if (response.type === 'SESSION_STATE') {
+        setSession(response.session);
+        setSettings(response.settings);
+      }
+    });
+  }, []);
+
   return (
-    <div className="absolute top-0 left-0 right-0 bottom-0 text-center h-full p-3 bg-gray-800">
-      <header className="flex flex-col items-center justify-center text-white">
-        <img src={logo} className="h-36 pointer-events-none animate-spin-slow" alt="logo" />
-        <p>
-          Edit <code>src/pages/popup/Popup.jsx</code> and save to reload.
-        </p>
+    <div className="w-72 bg-zinc-950 p-4 text-zinc-100">
+      <h1 className="text-lg font-bold text-emerald-400">TmuxTabs</h1>
+      <p className="mt-2 text-xs text-zinc-400">
+        Press{' '}
+        <kbd className="font-mono text-emerald-300">{formatChord(settings.prefix)}</kbd>
+        {' '}then{' '}
+        <kbd className="font-mono">{settings.commands.splitVertical}</kbd> or{' '}
+        <kbd className="font-mono">{settings.commands.splitHorizontal}</kbd> to split.
+      </p>
+      <p className="mt-3 text-sm text-zinc-300">
+        Session: {session?.name ?? 'none'}
+      </p>
+      <div className="mt-3 flex flex-col gap-1 text-sm">
         <a
-          className="text-blue-400"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+          href={chrome.runtime.getURL('src/pages/newtab/index.html')}
+          className="text-emerald-400 hover:text-emerald-300"
         >
-          Learn React!
+          Open dashboard
         </a>
-        <p>Popup styled with TailwindCSS!</p>
-      </header>
+        <a
+          href={chrome.runtime.getURL('src/pages/options/index.html')}
+          className="text-emerald-400 hover:text-emerald-300"
+        >
+          Customize keybinds
+        </a>
+      </div>
     </div>
   );
 }
